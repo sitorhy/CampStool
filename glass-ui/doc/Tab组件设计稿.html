@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃 Tab 标签页组件</title>
+    <style>
+        /* 模拟发光背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 420px;
+        }
+
+        /* ================= 毛玻璃 Tab 组件规范 ================= */
+
+        /* Tab 导航条容器 */
+        .glass-tabs {
+            position: relative;
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.4); /* 暗色基底提高对比度 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 单个 Tab 按钮 */
+        .tab-item {
+            position: relative;
+            z-index: 2;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.65); /* 默认次要文字颜色 */
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            outline: none;
+            border-radius: 8px;
+            transition: color 0.3s ease, transform 0.2s ease;
+            user-select: none;
+        }
+
+        /* 悬停样式 */
+        .tab-item:hover {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* 选中状态文本 */
+        .tab-item.active {
+            color: #ffffff;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        /* 动态滑块光晕背景 (Sliding Indicator) */
+        .tab-glider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            background: rgba(59, 130, 246, 0.65); /* 匹配主色调蓝色 */
+            border: 1px solid rgba(147, 197, 253, 0.8);
+            border-radius: 8px;
+            z-index: 1;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Tab 对应内容面板 */
+        .tab-content {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <div class="glass-tabs" id="glassTabs">
+        <!-- 选中指示光块 -->
+        <div class="tab-glider" id="tabGlider"></div>
+
+        <!-- Tab 项 -->
+        <button class="tab-item active" onclick="switchTab(this, 'tab1')">常规设置</button>
+        <button class="tab-item" onclick="switchTab(this, 'tab2')">声音风格</button>
+        <button class="tab-item" onclick="switchTab(this, 'tab3')">高级选项</button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div id="tab1" class="tab-content active">包含系统基础偏好、画面分辨率与显示模式设置。</div>
+    <div id="tab2" class="tab-content">音频输出设备选择、背景音乐音量与音效均衡器调节。</div>
+    <div id="tab3" class="tab-content">开发者选项、网络延迟优化与缓存清理。</div>
+</div>
+
+<script>
+    // 初始化滑块位置
+    window.addEventListener('DOMContentLoaded', () => {
+        const activeTab = document.querySelector('.tab-item.active');
+        updateGlider(activeTab);
+    });
+
+    function switchTab(element, contentId) {
+        // 切换 Tab 激活类
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+        element.classList.add('active');
+
+        // 移动滑块
+        updateGlider(element);
+
+        // 切换内容展示
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(contentId).classList.add('active');
+    }
+
+    function updateGlider(element) {
+        const glider = document.getElementById('tabGlider');
+        glider.style.width = `${element.offsetWidth}px`;
+        glider.style.transform = `translateX(${element.offsetLeft - 4}px)`;
+    }
+</script>
+</body>
+</html>

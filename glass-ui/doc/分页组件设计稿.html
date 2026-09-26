@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃 Pagination 分页组件设计</title>
+    <style>
+        /* 模拟底层发光背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 模拟弹窗/容器面板 */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 28px 36px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .title {
+            color: #ffffff;
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* ================= 毛玻璃 Pagination 组件规范 ================= */
+
+        .glass-pagination {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        /* 通用页码/方向按钮 */
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 按钮 Hover 效果：变亮并上浮 */
+        .page-btn:hover:not(.disabled):not(.active) {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.85);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        /* 点击按压效果 */
+        .page-btn:active:not(.disabled) {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* 当前选中页码（蓝色高亮发光，匹配主按钮样式） */
+        .page-btn.active {
+            background: rgba(59, 130, 246, 0.75);
+            border-color: #60a5fa;
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            cursor: default;
+        }
+
+        /* 禁用状态（上一页/下一页不可用时） */
+        .page-btn.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        /* 省略号标志 */
+        .page-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 36px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        /* 快速跳转容器 (Quick Jumper) */
+        .page-jumper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 8px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* 跳转页码输入框 */
+        .page-jumper-input {
+            width: 44px;
+            height: 34px;
+            padding: 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            outline: none;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+        }
+
+        /* 输入框 Chrome/Firefox 原生箭头擦除 */
+        .page-jumper-input::-webkit-inner-spin-button,
+        .page-jumper-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .page-jumper-input {
+            -moz-appearance: textfield;
+        }
+
+        .page-jumper-input:focus {
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <h3 class="title">毛玻璃分页组件展示</h3>
+
+    <div class="glass-pagination">
+        <!-- 上一页按钮 -->
+        <button class="page-btn disabled" id="prevBtn" onclick="changePage(currentPage - 1)">‹</button>
+
+        <!-- 数字页码项 -->
+        <button class="page-btn active" onclick="changePage(1)">1</button>
+        <button class="page-btn" onclick="changePage(2)">2</button>
+        <button class="page-btn" onclick="changePage(3)">3</button>
+        <button class="page-btn" onclick="changePage(4)">4</button>
+
+        <!-- 省略号 -->
+        <span class="page-ellipsis">•••</span>
+
+        <button class="page-btn" onclick="changePage(10)">10</button>
+
+        <!-- 下一页按钮 -->
+        <button class="page-btn" id="nextBtn" onclick="changePage(currentPage + 1)">›</button>
+
+        <!-- 快速跳转框 -->
+        <div class="page-jumper">
+            跳至
+            <input type="number" class="page-jumper-input" value="1" min="1" max="10" onkeydown="handleJump(event)">
+            页
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    const totalPages = 10;
+
+    function changePage(page) {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+
+        // 更新按钮的 active 状态
+        const btns = document.querySelectorAll('.page-btn:not(#prevBtn):not(#nextBtn)');
+        btns.forEach(btn => {
+            if (parseInt(btn.innerText) === currentPage) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // 更新上一页/下一页禁用状态
+        document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 1);
+        document.getElementById('nextBtn').classList.toggle('disabled', currentPage === totalPages);
+
+        // 同步输入框
+        document.querySelector('.page-jumper-input').value = currentPage;
+    }
+
+    function handleJump(e) {
+        if (e.key === 'Enter') {
+            const val = parseInt(e.target.value);
+            if (val >= 1 && val <= totalPages) {
+                changePage(val);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

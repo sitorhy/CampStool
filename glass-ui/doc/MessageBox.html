@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>毛玻璃 MessageBox 组件设计图</title>
+  <style>
+    /* 模拟发光动漫背景 */
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* 触发弹窗的演示按钮 */
+    .open-btn {
+      padding: 12px 24px;
+      font-size: 15px;
+      color: #fff;
+      background: rgba(59, 130, 246, 0.6);
+      border: 1.5px solid #60a5fa;
+      border-radius: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+      transition: all 0.25s ease;
+    }
+    .open-btn:hover {
+      background: rgba(59, 130, 246, 0.85);
+      transform: translateY(-2px);
+    }
+
+    /* ================= 毛玻璃 MessageBox 核心规范 ================= */
+
+    /* 1. 全屏遮罩背景 (Modal Overlay) */
+    .glass-msgbox-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 14, 26, 0.55); /* 深色暗沉背景凸显弹窗 */
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* 展开状态 */
+    .glass-msgbox-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 2. 弹窗主体面板 (Modal Card) */
+    .glass-msgbox {
+      position: relative;
+      width: 400px;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      transform: scale(0.85) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .glass-msgbox-overlay.active .glass-msgbox {
+      transform: scale(1) translateY(0);
+    }
+
+    /* 3. 顶部 Header (标题 + 关闭按钮) */
+    .msgbox-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .msgbox-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 右上角关闭小红叉按钮 */
+    .msgbox-close-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid #fca5a5;
+      background: rgba(239, 68, 68, 0.35);
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .msgbox-close-btn:hover {
+      background: rgba(239, 68, 68, 0.85);
+      border-color: #f87171;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+      transform: scale(1.08);
+    }
+
+    /* 4. 中间 Content (图标 + 消息正文) */
+    .msgbox-body {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* 状态图标 (如警告 / 信息 / 成功) */
+    .msgbox-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: rgba(255, 152, 0, 0.35);
+      border: 1.5px solid #ffb74d;
+      box-shadow: 0 0 12px rgba(255, 152, 0, 0.4);
+    }
+
+    .msgbox-message {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.88);
+      margin: 0;
+    }
+
+    /* 5. 底部 Footer 按钮组 */
+    .msgbox-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 通用毛玻璃按钮样式 */
+    .glass-btn {
+      height: 38px;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      cursor: pointer;
+      outline: none;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+    }
+
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.9);
+      transform: translateY(-2px);
+    }
+
+    /* 主确认按钮 (高亮蓝) */
+    .glass-btn-primary {
+      background: rgba(59, 130, 246, 0.5);
+      border-color: #60a5fa;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .glass-btn-primary:hover {
+      background: rgba(59, 130, 246, 0.85);
+      border-color: #93c5fd;
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+<!-- 触发器 -->
+<button class="open-btn" onclick="openMsgBox()">弹出 MessageBox</button>
+
+<!-- 毛玻璃 MessageBox 组件主体 -->
+<div class="glass-msgbox-overlay active" id="msgBoxOverlay">
+  <div class="glass-msgbox">
+
+    <!-- 1. 顶部标题栏 -->
+    <div class="msgbox-header">
+      <h4 class="msgbox-title">系统提示</h4>
+      <button class="msgbox-close-btn" onclick="closeMsgBox()" title="关闭">✕</button>
+    </div>
+
+    <!-- 2. 内容消息区 -->
+    <div class="msgbox-body">
+      <div class="msgbox-icon">⚠️</div>
+      <p class="msgbox-message">
+        您修改的配置参数尚未保存。如果现在离开，未保存的数据将会丢失，是否确认继续操作？
+      </p>
+    </div>
+
+    <!-- 3. 底部操作按钮 -->
+    <div class="msgbox-footer">
+      <button class="glass-btn" onclick="closeMsgBox()">取消</button>
+      <button class="glass-btn glass-btn-primary" onclick="closeMsgBox()">确认离开</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function openMsgBox() {
+    document.getElementById('msgBoxOverlay').classList.add('active');
+  }
+
+  function closeMsgBox() {
+    document.getElementById('msgBoxOverlay').classList.remove('active');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃高质感圆环按钮设计</title>
+    <style>
+        /* 模拟底层发光/动漫背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ================= 毛玻璃高质感圆环按钮规范 ================= */
+
+        /* 外层轨道容器（模拟您设计的双重外环线） */
+        .glass-circle-btn {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+
+            /* 外套同心双环 border */
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+
+            /* 借助 outline 打造第二重细外环轨迹 */
+            outline: 2px solid rgba(255, 255, 255, 0.15);
+            outline-offset: 3px;
+
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* 内部填充盘（毛玻璃主体卡盘） */
+        .glass-circle-btn .btn-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #ffffff;
+
+            /* 渐变与内发光，避免扁平单色 */
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.08) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* ---------------- 主题色风格划分 ---------------- */
+
+        /* 1. 主色主题（活力琥珀橙 / 继承您原图的橙色） */
+        .glass-circle-btn.btn-orange {
+            border-color: rgba(245, 158, 11, 0.8);
+            outline-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+        .glass-circle-btn.btn-orange .btn-inner {
+            background: radial-gradient(circle at 30% 30%, rgba(251, 191, 36, 0.9) 0%, rgba(217, 119, 6, 0.7) 100%);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 2. 暗夜模式主题（深邃灰蓝 / 对应您原图第2个反色按钮） */
+        .glass-circle-btn.btn-dark {
+            border-color: rgba(96, 165, 250, 0.6);
+            outline-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(15, 23, 42, 0.6);
+        }
+        .glass-circle-btn.btn-dark .btn-inner {
+            background: radial-gradient(circle at 30% 30%, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            color: #fbbf24; /* 内部图标使用发光橙 */
+        }
+
+        /* 3. 成功状态（宝石翡翠绿） */
+        .glass-circle-btn.btn-success {
+            border-color: rgba(52, 211, 153, 0.8);
+            outline-color: rgba(52, 211, 153, 0.3);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+        }
+        .glass-circle-btn.btn-success .btn-inner {
+            background: radial-gradient(circle at 30% 30%, rgba(52, 211, 153, 0.85) 0%, rgba(5, 150, 105, 0.75) 100%);
+        }
+
+        /* 4. 危险/关闭状态（霓虹玫瑰红） */
+        .glass-circle-btn.btn-danger {
+            border-color: rgba(248, 113, 113, 0.8);
+            outline-color: rgba(248, 113, 113, 0.3);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+        }
+        .glass-circle-btn.btn-danger .btn-inner {
+            background: radial-gradient(circle at 30% 30%, rgba(248, 113, 113, 0.85) 0%, rgba(220, 38, 38, 0.75) 100%);
+        }
+
+        /* ---------------- 交互动画（Hover & Active） ---------------- */
+
+        /* 悬停 Hover：上浮、外双环光晕扩展示放 */
+        .glass-circle-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            outline-offset: 5px;
+        }
+
+        .glass-circle-btn.btn-orange:hover {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+        }
+        .glass-circle-btn.btn-dark:hover {
+            box-shadow: 0 0 18px rgba(96, 165, 250, 0.6);
+        }
+        .glass-circle-btn.btn-danger:hover {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+        }
+
+        /* 点击按压 Active：缩小反馈 */
+        .glass-circle-btn:active {
+            transform: translateY(0) scale(0.95);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="btn-container">
+    <!-- 1. 设置按钮（经典橙） -->
+    <button class="glass-circle-btn btn-orange" title="设置">
+        <div class="btn-inner">⚙️</div>
+    </button>
+
+    <!-- 2. 反色/暗色设置按钮 -->
+    <button class="glass-circle-btn btn-dark" title="高级选项">
+        <div class="btn-inner">⚙️</div>
+    </button>
+
+    <!-- 3. 圈选/确认按钮 -->
+    <button class="glass-circle-btn btn-orange" title="确认">
+        <div class="btn-inner">⭕</div>
+    </button>
+
+    <!-- 4. 取消/关闭按钮 -->
+    <button class="glass-circle-btn btn-danger" title="关闭">
+        <div class="btn-inner">✖</div>
+    </button>
+</div>
+
+</body>
+</html>

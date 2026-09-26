@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>通用毛玻璃卡片容器组件</title>
+    <style>
+        /* 模拟底层发光动漫背景 */
+        body {
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            justify-content: center;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            box-sizing: border-box;
+        }
+
+        /* ================= 通用毛玻璃卡片核心规范 ================= */
+
+        .glass-card {
+            /* 允许通过 CSS 变量在外部自定义内边距与外边距 */
+            --card-padding: 24px;
+            --card-margin: 0px;
+
+            position: relative;
+            box-sizing: border-box;
+            margin: var(--card-margin);
+            width: 360px; /* 默认宽度，也可由外部 flex/grid 控制 */
+
+            display: flex;
+            flex-direction: column;
+
+            /* 核心毛玻璃与高光质感 */
+            background: radial-gradient(
+                    circle at 20% 20%,
+                    rgba(255, 255, 255, 0.22) 0%,
+                    rgba(255, 255, 255, 0.08) 100%
+            );
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+
+            /* 多层边框与内影折射 */
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            border-radius: 20px;
+            box-shadow:
+                    inset 0 1px 1px rgba(255, 255, 255, 0.6), /* 顶部白亮线 */
+                    0 12px 32px rgba(0, 0, 0, 0.25);          /* 沉底发光投影 */
+
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden; /* 防止内部子元素圆角溢出 */
+        }
+
+        /* 悬停微浮效果 */
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow:
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8),
+                    0 16px 40px rgba(0, 0, 0, 0.35),
+                    0 0 20px rgba(255, 255, 255, 0.15);
+        }
+
+        /* 1. 标题头 (Header - 可选) */
+        .glass-card-header {
+            padding: var(--card-padding) var(--card-padding) 12px var(--card-padding);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .glass-card-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .glass-card-subtitle {
+            margin: 2px 0 0 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* 2. 主体内容 (Body - 必选) */
+        .glass-card-body {
+            padding: var(--card-padding);
+            flex: 1; /* 自动撑开填充高度 */
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 如果没有 Header，修正 Body 的顶部间距 */
+        .glass-card:not(:has(.glass-card-header)) .glass-card-body {
+            padding-top: var(--card-padding);
+        }
+
+        /* 3. 页脚 (Footer - 可选) */
+        .glass-card-footer {
+            padding: 12px var(--card-padding) var(--card-padding) var(--card-padding);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.15); /* 底部微加深，强化区分度 */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* ---------------- 内外边距尺寸调节类 (Spacing Variants) ---------------- */
+
+        /* 紧凑型 (Small Padding) */
+        .glass-card.p-sm {
+            --card-padding: 14px;
+        }
+
+        /* 常规型 (Medium Padding - 默认) */
+        .glass-card.p-md {
+            --card-padding: 22px;
+        }
+
+        /* 宽松型 (Large Padding) */
+        .glass-card.p-lg {
+            --card-padding: 32px;
+        }
+
+        /* 外部外边距快捷类 (Margin Variants) */
+        .glass-card.m-sm { --card-margin: 8px; }
+        .glass-card.m-md { --card-margin: 16px; }
+        .glass-card.m-lg { --card-margin: 24px; }
+
+        /* 内部通用轻量按钮样式 */
+        .card-btn {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .card-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        .card-btn-primary {
+            background: rgba(59, 130, 246, 0.6);
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+        .card-btn-primary:hover {
+            background: rgba(59, 130, 246, 0.85);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 示例一：完整形态（包含 Header + Body + Footer） -->
+<div class="glass-card p-md">
+    <div class="glass-card-header">
+        <div>
+            <h3 class="glass-card-title">系统偏好设置</h3>
+            <p class="glass-card-subtitle">定制您的个性化界面主题</p>
+        </div>
+        <span style="font-size: 18px;">⚙️</span>
+    </div>
+
+    <div class="glass-card-body">
+        这里是常规卡片的内容区域。通过半透明毛玻璃基底，能够自然透出下方的模糊色彩，同时保持极高的文字可读性。
+    </div>
+
+    <div class="glass-card-footer">
+        <button class="card-btn">重置</button>
+        <button class="card-btn card-btn-primary">保存修改</button>
+    </div>
+</div>
+
+<!-- 示例二：无 Footer 简易形态（仅 Header + Body，兼演示宽松内边距 p-lg） -->
+<div class="glass-card p-lg">
+    <div class="glass-card-header">
+        <h3 class="glass-card-title">公告通知</h3>
+        <span style="font-size: 12px; color: rgba(255,255,255,0.6);">2小时前</span>
+    </div>
+
+    <div class="glass-card-body">
+        新版本的毛玻璃 UI 组件库已发布，本次更新包含了纯白水晶玻璃按钮以及高度自由调配的通用卡片容器。
+    </div>
+</div>
+
+<!-- 示例三：纯 Body 纯粹卡片（无 Header，无 Footer，演示紧凑内边距 p-sm） -->
+<div class="glass-card p-sm">
+    <div class="glass-card-body" style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 28px;">💎</span>
+        <div>
+            <div style="font-weight: 600; color: #fff;">纯文字卡片</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">适合用于快捷统计面板或极简提示信息。</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

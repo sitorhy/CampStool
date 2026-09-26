@@ -1,0 +1,48 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #1f2933;
+  /* 渐变背景，凸显毛玻璃组件的通透质感 */
+  background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 50%, #fbc2eb 100%);
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+}
+
+/* 演示页共享版式（非 scoped，供各 demo 复用） */
+.demo-page > h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.demo-page > .page-desc {
+  margin: 0 0 26px;
+  font-size: 14px;
+  color: rgba(31, 41, 51, 0.7);
+}
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.demo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

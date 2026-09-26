@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃 Loading 遮罩组件设计</title>
+    <style>
+        /* 模拟底层发光/动漫背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 示例卡片容器（用于演示局部遮罩） */
+        .demo-card {
+            position: relative; /* 局部遮罩依赖相对定位 */
+            width: 380px;
+            height: 240px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .demo-btn {
+            padding: 10px 18px;
+            font-size: 14px;
+            color: #fff;
+            background: rgba(59, 130, 246, 0.6);
+            border: 1.5px solid #60a5fa;
+            border-radius: 10px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.25s ease;
+        }
+        .demo-btn:hover {
+            background: rgba(59, 130, 246, 0.85);
+            transform: translateY(-2px);
+        }
+
+        /* ================= 毛玻璃 Loading 遮罩核心规范 ================= */
+
+        /* 1. 遮罩层基底层 (Mask Overlay) */
+        .glass-loading-mask {
+            position: absolute; /* 若需要全屏遮罩，修改为 fixed 即可 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+
+            /* 核心毛玻璃与高暗对比度背景 */
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: inherit; /* 自动继承父元素的圆角 */
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 全局遮罩扩展类 */
+        .glass-loading-mask.is-fullscreen {
+            position: fixed;
+            border-radius: 0;
+        }
+
+        /* 显隐控制 */
+        .glass-loading-mask.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 2. 核心双环发光 Spinner (霓虹双轨旋转) */
+        .loading-spinner-wrapper {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 外层蓝色轨道弧线条 */
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #60a5fa;
+            border-right-color: rgba(96, 165, 250, 0.3);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+            animation: spin 1s linear infinite;
+        }
+
+        /* 内层粉紫色反向轨道 */
+        .spinner-ring-inner {
+            position: absolute;
+            width: 65%;
+            height: 65%;
+            border-radius: 50%;
+            border: 2.5px solid transparent;
+            border-bottom-color: #f472b6;
+            border-left-color: rgba(244, 114, 182, 0.3);
+            box-shadow: 0 0 10px rgba(244, 114, 182, 0.6);
+            animation: spin-reverse 0.75s linear infinite;
+        }
+
+        /* 中心发光核心点 (Pulsing Core) */
+        .spinner-core {
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffffff, 0 0 20px #60a5fa;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* 3. 加载文字排版 */
+        .loading-text {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+            margin: 0;
+        }
+
+        /* ================= 关键帧动画 ================= */
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 示例卡片 -->
+<div class="demo-card">
+    <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 18px;">数据分析面板</h3>
+        <p style="margin: 0; font-size: 13px; color: rgba(255,255,255,0.7);">点击下方按钮体验卡片局部加载遮罩。</p>
+    </div>
+
+    <div>
+        <button class="demo-btn" onclick="showLocalLoading()">模拟局部加载</button>
+        <button class="demo-btn" style="background: rgba(244, 114, 182, 0.5); border-color: #f472b6;" onclick="showGlobalLoading()">模拟全屏加载</button>
+    </div>
+
+    <!-- 局部 Loading 遮罩组件 -->
+    <div class="glass-loading-mask" id="loadingMask">
+        <div class="loading-spinner-wrapper">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring-inner"></div>
+            <div class="spinner-core"></div>
+        </div>
+        <p class="loading-text">资源加载中...</p>
+    </div>
+</div>
+
+<script>
+    const mask = document.getElementById('loadingMask');
+
+    // 展示局部遮罩（2.5秒后自动关闭）
+    function showLocalLoading() {
+        mask.classList.remove('is-fullscreen');
+        mask.classList.add('active');
+        setTimeout(() => {
+            mask.classList.remove('active');
+        }, 2500);
+    }
+
+    // 展示全屏遮罩（2.5秒后自动关闭）
+    function showGlobalLoading() {
+        mask.classList.add('is-fullscreen');
+        mask.classList.add('active');
+        setTimeout(() => {
+            mask.classList.remove('active');
+            mask.classList.remove('is-fullscreen');
+        }, 2500);
+    }
+</script>
+
+</body>
+</html>

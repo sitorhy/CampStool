@@ -1,0 +1,92 @@
+/**
+ * 文本样式全局 token（抽离自各组件的写死颜色）。
+ *
+ * 默认走「浅色/日系清新」配色（light = 深色文字）；
+ * 在 html（或任一容器元素）上加 data-theme="dark" 切换到「深色/毛玻璃」配色（浅色偏白文字）。
+ *
+ * 用法：
+ *  - 样式内直接引用变量：color: var(--text-body);
+ *  - 模板上挂语义类名：<span class="glass-text glass-text--muted">...</span>
+ */
+
+/* ===== 浅色/日系清新背景配色（默认，light = theme） ===== */
+:root,
+[data-theme='light'] {
+  /* 主标题/核心文本：深邃蓝灰，比纯黑更具质感 */
+  --text-heading: #0f172a;
+  --text-heading-shadow: none;
+
+  /* 正文/常规文本：中暖灰，长时间阅读舒适度高 */
+  --text-body: #334155;
+
+  /* 次要/提示/占位文本：石板灰 */
+  --text-muted: #64748b;
+
+  /* 禁用文本 */
+  --text-disabled: rgba(100, 116, 139, 0.45);
+
+  /* 交互高亮/链接：海蓝（Hover 为温暖琥珀橙） */
+  --text-link: #2563eb;
+  --text-link-hover: #d97706;
+
+  /* 警告/危险：警示红 */
+  --text-danger: #dc2626;
+}
+
+/* ===== 深色/毛玻璃背景配色（切换） ===== */
+[data-theme='dark'] {
+  /* 主标题/核心文本：纯白，配合阴影增强浮空感 */
+  --text-heading: #ffffff;
+  --text-heading-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* 正文/常规文本：85% 透明度白色 */
+  --text-body: rgba(255, 255, 255, 0.85);
+
+  /* 次要/提示/占位文本：低透白，辅助视觉层级 */
+  --text-muted: rgba(255, 255, 255, 0.55);
+
+  /* 禁用文本 */
+  --text-disabled: rgba(255, 255, 255, 0.3);
+
+  /* 交互高亮/链接：发光天空蓝（默认态 / Hover 激活态） */
+  --text-link: #3b82f6;
+  --text-link-hover: #60a5fa;
+
+  /* 警告/危险：霓虹粉红 */
+  --text-danger: #f87171;
+}
+
+/* ===== 语义工具类：模板上直接选用文本层级 ===== */
+.glass-text {
+  color: var(--text-body);
+
+  &--heading {
+    color: var(--text-heading);
+    text-shadow: var(--text-heading-shadow);
+  }
+
+  &--body {
+    color: var(--text-body);
+  }
+
+  &--muted {
+    color: var(--text-muted);
+  }
+
+  &--disabled {
+    color: var(--text-disabled);
+  }
+
+  &--link {
+    color: var(--text-link);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text-link-hover);
+    }
+  }
+
+  &--danger {
+    color: var(--text-danger);
+  }
+}

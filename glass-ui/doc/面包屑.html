@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃 Breadcrumb 面包屑组件设计</title>
+    <style>
+        /* 模拟底层发光动漫背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 30px 36px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .title {
+            color: #ffffff;
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* ================= 毛玻璃 Breadcrumb 核心规范 ================= */
+
+        /* 面包屑外层容器 */
+        .glass-breadcrumb {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.35); /* 略微加深底色以提高路径文字层级 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.15);
+            list-style: none;
+            margin: 0;
+            user-select: none;
+        }
+
+        /* 面包屑单项 */
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            font-size: 13.5px;
+        }
+
+        /* 可点击的路径链接 */
+        .breadcrumb-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 链接 Hover 态：提升透明度、发光并上浮 */
+        .breadcrumb-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        /* 当前页（终点项）样式：天蓝色亮体 + 微弱阴影 */
+        .breadcrumb-item.current {
+            color: #60a5fa;
+            font-weight: 600;
+            padding: 4px 8px;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+            cursor: default;
+        }
+
+        /* 分隔符 (斜杠 / 箭头) */
+        .breadcrumb-separator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 12px;
+        }
+
+        /* 图标调柔 */
+        .breadcrumb-icon {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <h3 class="title">Breadcrumb 面包屑路径展示</h3>
+
+    <!-- 方案一：标准斜线分隔符带图标 -->
+    <nav>
+        <ol class="glass-breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="#" class="breadcrumb-link">
+                    <span class="breadcrumb-icon">🏠</span> 首页
+                </a>
+            </li>
+
+            <li class="breadcrumb-separator">/</li>
+
+            <li class="breadcrumb-item">
+                <a href="#" class="breadcrumb-link">
+                    <span class="breadcrumb-icon">⚙️</span> 设置中心
+                </a>
+            </li>
+
+            <li class="breadcrumb-separator">/</li>
+
+            <li class="breadcrumb-item">
+                <a href="#" class="breadcrumb-link">界面偏好</a>
+            </li>
+
+            <li class="breadcrumb-separator">/</li>
+
+            <!-- 当前页面（不可点击） -->
+            <li class="breadcrumb-item current">
+                毛玻璃主题 (Glassmorphism)
+            </li>
+        </ol>
+    </nav>
+
+    <!-- 方案二：极简箭头分隔符 (›) -->
+    <nav>
+        <ol class="glass-breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="#" class="breadcrumb-link">工作台</a>
+            </li>
+
+            <li class="breadcrumb-separator">›</li>
+
+            <li class="breadcrumb-item">
+                <a href="#" class="breadcrumb-link">组件库</a>
+            </li>
+
+            <li class="breadcrumb-separator">›</li>
+
+            <li class="breadcrumb-item current">
+                面包屑组件 (Breadcrumb)
+            </li>
+        </ol>
+    </nav>
+</div>
+
+</body>
+</html>

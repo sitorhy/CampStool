@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>毛玻璃 Tag 标签组件设计</title>
+    <style>
+        /* 模拟底层发光动漫背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1c2e 0%, #3a1c38 50%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 展示面板卡片 */
+        .glass-card-panel {
+            width: 520px;
+            padding: 32px 36px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ================= 毛玻璃 Tag 标签核心规范 ================= */
+
+        /* 基础 Tag 元素 */
+        .glass-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 28px;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            user-select: none;
+            box-sizing: border-box;
+
+            /* 核心质感：半透明白光与细高光边框 */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15);
+
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 悬停微动与发光 */
+        .glass-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* 1. 色彩变体 (Color Variants) */
+
+        /* 蓝色/信息 */
+        .glass-tag.tag-blue {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: rgba(96, 165, 250, 0.6);
+            color: #93c5fd;
+        }
+        .glass-tag.tag-blue:hover {
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        /* 绿色/成功 */
+        .glass-tag.tag-green {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: rgba(52, 211, 153, 0.6);
+            color: #6ee7b7;
+        }
+        .glass-tag.tag-green:hover {
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        }
+
+        /* 橙色/警告 */
+        .glass-tag.tag-orange {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: rgba(251, 191, 36, 0.6);
+            color: #fde047;
+        }
+        .glass-tag.tag-orange:hover {
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+        }
+
+        /* 红色/危险 */
+        .glass-tag.tag-red {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(248, 113, 113, 0.6);
+            color: #fca5a5;
+        }
+        .glass-tag.tag-red:hover {
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        /* 2. 状态小圆点 (Dot Tag) */
+        .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        /* 3. 可关闭叉号按钮 (Closable Icon) */
+        .tag-close-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: -2px;
+        }
+
+        .tag-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* 4. 炫彩高亮标签 (Glow & Gradient Tag) */
+        .glass-tag.tag-glow {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
+            border-color: rgba(244, 114, 182, 0.8);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 0 14px rgba(236, 72, 153, 0.5);
+        }
+
+        /* 5. 尺寸规范 (Sizes) */
+        .glass-tag.tag-sm {
+            height: 22px;
+            padding: 0 8px;
+            font-size: 11.5px;
+            border-radius: 6px;
+        }
+
+        .glass-tag.tag-lg {
+            height: 34px;
+            padding: 0 16px;
+            font-size: 14px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card-panel">
+
+    <!-- 1. 常规状态色彩标签 -->
+    <div>
+        <div class="section-title">色彩状态标签</div>
+        <div class="tag-group">
+            <span class="glass-tag">默认白色</span>
+            <span class="glass-tag tag-blue">处理中</span>
+            <span class="glass-tag tag-green">已完成</span>
+            <span class="glass-tag tag-orange">待审核</span>
+            <span class="glass-tag tag-red">已拒绝</span>
+        </div>
+    </div>
+
+    <!-- 2. 带状态指示圆点的标签 (Dot Tag) -->
+    <div>
+        <div class="section-title">状态指示圆点</div>
+        <div class="tag-group">
+        <span class="glass-tag tag-green">
+          <span class="tag-dot"></span> 在线
+        </span>
+            <span class="glass-tag tag-orange">
+          <span class="tag-dot"></span> 离开
+        </span>
+            <span class="glass-tag tag-red">
+          <span class="tag-dot"></span> 异常
+        </span>
+        </div>
+    </div>
+
+    <!-- 3. 可移除标签 (Closable Tag) -->
+    <div>
+        <div class="section-title">可交互移除标签</div>
+        <div class="tag-group">
+        <span class="glass-tag tag-blue" id="tag1">
+          Vue.js
+          <span class="tag-close-btn" onclick="removeTag('tag1')">✕</span>
+        </span>
+            <span class="glass-tag tag-blue" id="tag2">
+          TypeScript
+          <span class="tag-close-btn" onclick="removeTag('tag2')">✕</span>
+        </span>
+            <span class="glass-tag tag-glow" id="tag3">
+          PRO 特权
+          <span class="tag-close-btn" onclick="removeTag('tag3')">✕</span>
+        </span>
+        </div>
+    </div>
+
+    <!-- 4. 尺寸与炫彩推荐 -->
+    <div>
+        <div class="section-title">尺寸与高光推荐</div>
+        <div class="tag-group">
+            <span class="glass-tag tag-sm tag-blue">Small</span>
+            <span class="glass-tag tag-blue">Medium</span>
+            <span class="glass-tag tag-lg tag-blue">Large</span>
+            <span class="glass-tag tag-glow">🔥 HOT 热门推荐</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 点击关闭小叉号移除 Tag 的渐隐效果
+    function removeTag(id) {
+        const tag = document.getElementById(id);
+        if (tag) {
+            tag.style.opacity = '0';
+            tag.style.transform = 'scale(0.8)';
+            setTimeout(() => tag.remove(), 200);
+        }
+    }
+</script>
+
+</body>
+</html>

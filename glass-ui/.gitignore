@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+*.local
+*.log
+.DS_Store
+.idea/
+.vscode/
+.docusaurus/
+cache/
+*.tsbuildinfo

@@ -1,0 +1,33 @@
+{
+  "name": "glass-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A glassmorphism Vue 3 component library monorepo",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @glass-ui/notebook dev",
+    "build": "pnpm --filter @glass-ui/core build && pnpm --filter @glass-ui/notebook build",
+    "build:core": "pnpm --filter @glass-ui/core build",
+    "build:notebook": "pnpm --filter @glass-ui/notebook build",
+    "preview": "pnpm --filter @glass-ui/notebook preview",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r exec rm -rf dist node_modules && rm -rf node_modules"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "component-library",
+    "glassmorphism",
+    "ui"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.6.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.6.0"
+}
