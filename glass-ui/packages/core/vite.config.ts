@@ -36,4 +36,8 @@ export default defineConfig({
             ],
         })
     ],
+    build: {
+        // 本地 demo 站点与库产物分目录，避免互相覆盖（库产物见 vite.lib.config.ts）
+        outDir: 'dist-playground',
+    },
 })
